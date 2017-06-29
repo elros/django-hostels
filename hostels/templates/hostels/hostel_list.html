@@ -1,0 +1,30 @@
+{% extends "hostels/base.html" %}
+
+{% block title %}Справочник хостелов{% endblock %}
+
+{% block content %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Город</th>
+                <th>Адрес</th>
+                <th>Номер телефона</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for city, hostels in hostel_list %}
+            {% for hostel in hostels %}
+            <tr>
+                {% if forloop.counter == 1 %}
+                <td>{{ city }}</td>
+                {% else %}
+                <td></td>
+                {% endif %}
+                <td>{{ hostel.address }}</td>
+                <td>{{ hostel.phone_number }}</td>
+            </tr>
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

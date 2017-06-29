@@ -1,0 +1,30 @@
+{% extends "hostels/base.html" %}
+
+{% block title %}Изменение сроков проживания{% endblock %}
+
+{% block content %}
+{% include "hostels/base_form.html" with submit_text="Готово" cancel_button="Отмена" glyphs=True form_class="update-tax-value" %}
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        $('#id_end_date').datepicker({
+            format: "yyyy-mm-dd",
+            language: 'ru',
+            startDate: new Date(),
+        });
+
+        $(".update-tax-value").change(function() {
+            var start_date = $("#id_start_date").val();
+            var end_date = $("#id_end_date").val();
+            var old_value = $("#id_old_value").val();
+
+            days = dayDiff(start_date, end_date);
+            $.get("{% url 'hostels:bed_tax_value' bed_id=bed.id %}", {days: days})
+                .done(function(data) {
+                    $("#id_value").val(data - old_value);
+                });
+        });
+
+    });
+</script>
+{% endblock %}

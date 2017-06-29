@@ -1,0 +1,145 @@
+{% extends 'hostels/base.html' %}
+
+{% block title %}Заказы{% endblock %}
+
+{% block content %}
+
+    {% if error %}
+        {% include "hostels/alert_template.html" with type="danger" message=error %}
+    {% endif %}
+
+    {% if request.GET %}
+        <button type="button" class="btn btn-default" onclick="window.location = '{{ request.GET.back }}';"><span class="glyphicon glyphicon-arrow-left"></span> Назад</button>
+    {% endif %}
+
+    <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#createObject"><span class="glyphicon glyphicon-plus"></span> Добавить</button>
+
+    <br><br>
+    {% if orders %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Статус</th>
+                    <th>Кровать</th>
+                    <th>Дата въезда</th>
+                    <th>Дата отъезда</th>
+                    <th>Сумма</th>
+                    <th>ФИО клиента</th>
+                    <th>Паспортные данные клиента</th>
+                    <th>Телефоны клиента</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>
+                        {{ order.id }}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_select_form.html' with action='hostels:manage_edit_order' id=order.id name='status' value=order.status options=options.statuses selected=order.status %}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_select_form.html' with action='hostels:manage_edit_order' id=order.id name='bed_id' value=order.bed.id options=options.beds selected=order.bed.id %}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_date_form.html' with action='hostels:manage_edit_order' type='text' id=order.id name='start_date' value=order.start_date %}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_date_form.html' with action='hostels:manage_edit_order' type='text' id=order.id name='end_date' value=order.end_date %}
+                    <td>
+                        {% include 'hostels/manage_edit_text_form.html' with action='hostels:manage_edit_order' type='text' id=order.id name='value' value=order.value %}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_text_form.html' with action='hostels:manage_edit_order' type='text' id=order.id name='guest_full_name' value=order.guest_full_name %}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_text_form.html' with action='hostels:manage_edit_order' type='text' id=order.id name='guest_identification' value=order.guest_identification %}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_text_form.html' with action='hostels:manage_edit_order' type='text' id=order.id name='guest_phone_number' value=order.guest_phone_number %}
+                    </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-cog"></span>
+                            <span class="caret"></span></button>
+                            <ul class="dropdown-menu pull-right">
+                                <li><a href="#" onclick="console.log($('#createObject').find('[name=\'csrfmiddlewaretoken\']').val()); $.ajax({url: '{% url 'hostels:manage_edit_order' id=order.id %}', type: 'DELETE', csrfmiddlewaretoken: $('#createObject').find('[name=\'csrfmiddlewaretoken\']').val()}).done(function(){ location.reload(); });"><span class="glyphicon glyphicon-remove"></span> Удалить</a></li>
+                                <li class="dropdown-header">Связанные объекты</li>
+                                <li><a href="{% url 'hostels:manage_charges' %}?order_id={{ order.id }}&back={{ request.get_full_path }}"><span class="glyphicon glyphicon-rub"></span> Платежи</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div id="createObject" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Новый заказ</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="hostel_id" value="{{ request.GET.hostel_id }}">
+                    <input type="hidden" name="bed_id" value="{{ request.GET.hostel_id }}">
+                    <div class="form-group">
+                        <label for="id_bed">Кровать:</label>
+                        <select class="form-control" id="id_bed" name="bed">
+                            {% for option_val, option_text in options.beds %}
+                                <option value="{{ option_val.id }}" {% if option_val.id|add:'0' == request.GET.bed_id|add:'0' %}selected{% endif %}>{{ option_text }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_status">Статус:</label>
+                        <select class="form-control" id="id_status" name="status">
+                            {% for option_val, option_text in options.statuses %}
+                                <option value="{{ option_val.id }}">{{ option_text }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_start_date">Дата въезда:</label>
+                        <input type="text" class="form-control" id="id_start_date" name="start_date">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_end_date">Дата отъезда:</label>
+                        <input type="text" class="form-control" id="id_end_date" name="end_date">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_value">Сумма:</label>
+                        <input type="text" class="form-control" id="id_value" name="value">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_guest_full_name">ФИО клиента:</label>
+                        <input type="text" class="form-control" id="id_guest_full_name" name="guest_full_name">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_guest_identification">Паспортные данные клиента:</label>
+                        <input type="text" class="form-control" id="id_guest_identification" name="guest_identification">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_guest_phone_number">Телефоны клиента:</label>
+                        <input type="text" class="form-control" id="id_guest_phone_number" name="guest_phone_number">
+                    </div>
+                    <button type="submit" class="btn btn-default">
+                        <span class="glyphicon glyphicon-ok"></span>
+                        Создать
+                    </button>
+                </form>
+            </div>
+        </div>
+
+      </div>
+    </div>
+
+{% endblock %}

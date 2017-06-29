@@ -1,0 +1,73 @@
+{% extends 'hostels/base.html' %}
+
+{% block title %}История тарифов{% endblock %}
+
+{% block content %}
+
+    {% if error %}
+        {% include "hostels/alert_template.html" with type="danger" message=error %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <form role="form" class="form-inline" method="get">
+                <div class="form-group">
+                    <!-- <label for="id_start_date">Начало периода:</label> -->
+                    <input type="text" id="id_start_date" class="form-control" name="start_date" value="{{ start_date|date:'Y-m-d' }}" placeholder="Начало периода">
+                </div>
+                <span class="glyphicon glyphicon-chevron-right"></span>
+                <div class="form-group">
+                    <!-- <label for="id_end_date">Конец периода:</label> -->
+                    <input type="text" id="id_end_date" class="form-control" name="end_date" value="{{ end_date|date:'Y-m-d' }}" placeholder="Конец периода">
+                </div>
+                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-ok"></span></button>
+            </form>
+            <script type="text/javascript">
+                $('#id_start_date').datepicker({
+                    format: "yyyy-mm-dd",
+                    language: 'ru',
+                });
+                $('#id_end_date').datepicker({
+                    format: "yyyy-mm-dd",
+                    language: 'ru',
+                });
+            </script>
+        </div>
+
+    <br><br><br>
+    {% if taxes %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Начало периода истории</th>
+                    <th>Конец периода истории</th>
+                    <th>Порог</th>
+                    <th>Цена за день</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for tax in taxes %}
+                {% for grade in tax.tax_grades.all %}
+                <tr>
+                    {% if forloop.counter == 1 %}
+                        <td>{{ tax.tax_name }}</td>
+                        <td>{{ tax.history_start|date:'Y.m.d H:i:s' }}</td>
+                        <td>{{ tax.history_end|date:'Y.m.d H:i:s' }}</td>
+                    {% else %}
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    {% endif %}
+                    <td>{{ grade.threshold_days }}</td>
+                    <td>{{ grade.day_price }}</td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        {% include "hostels/alert_template.html" with type="info" message="Не найдено тарифов за указанный период." %}
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'hostels/base.html' %}
+
+{% block title %}Тарифы{% endblock %}
+
+{% block content %}
+
+    {% if error %}
+        {% include "hostels/alert_template.html" with type="danger" message=error %}
+    {% endif %}
+
+    {% if request.GET %}
+        <button type="button" class="btn btn-default" onclick="window.location = '{{ request.GET.back }}';"><span class="glyphicon glyphicon-arrow-left"></span> Назад</button>
+    {% endif %}
+
+    <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#createObject"><span class="glyphicon glyphicon-plus"></span> Добавить</button>
+
+    <br><br>
+    <div class="row">
+        {% for tax in taxes %}
+        <div class="col-md-4">
+            <h3>{{ tax.name }}</h3>
+            <table class="table">
+                <thead>
+                    <th>Порог</th>
+                    <th>Цена</th>
+                    <th></th>
+                </thead>
+                <tbody>
+                    {% for grade in tax.sorted_grades %}
+                    <tr>
+                        <td>
+                            {% include 'hostels/manage_edit_text_form.html' with action='hostels:manage_edit_tax_grades' type='text' id=grade.id name='threshold_days' value=grade.threshold_days %}
+                        </td>
+                        <td>
+                            {% include 'hostels/manage_edit_text_form.html' with action='hostels:manage_edit_tax_grades' type='text' id=grade.id name='day_price' value=grade.day_price %}
+                        </td>
+                        <td>
+                            {% if forloop.counter != 1 %}
+                            <button type="button" class="btn btn-default pull-right"><small><span class="glyphicon glyphicon-remove"></span></small></button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <form role="form" class="form-inline">
+                            <td>
+                                <input type="text" class="form-control" id="id{{ tax.id }}_threshold_days" name="threshold_days">
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" id="id_name" name="name">
+                            </td>
+                            <td><button type="submit" class="btn btn-default pull-right"><small><span class="glyphicon glyphicon-plus"></span></small></button></td>
+                        </form>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="createObject" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Новый тариф</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_name">Название:</label>
+                        <input type="text" class="form-control" id="id_name" name="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_price">Цена по умолчанию:</label>
+                        <input type="text" class="form-control" id="id_price" name="price">
+                    </div>
+                    <button type="submit" class="btn btn-default">
+                        <span class="glyphicon glyphicon-ok"></span>
+                        Создать
+                    </button>
+                </form>
+            </div>
+        </div>
+
+      </div>
+    </div>
+
+{% endblock %}

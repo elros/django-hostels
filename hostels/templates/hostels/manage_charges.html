@@ -1,0 +1,150 @@
+{% extends 'hostels/base.html' %}
+
+{% block title %}Платежи{% endblock %}
+
+{% block content %}
+
+    {% if error %}
+        {% include "hostels/alert_template.html" with type="danger" message=error %}
+    {% endif %}
+
+    {% if request.GET %}
+        <button type="button" class="btn btn-default" onclick="window.location = '{{ request.GET.back }}';"><span class="glyphicon glyphicon-arrow-left"></span> Назад</button>
+    {% endif %}
+
+    <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#createObject"><span class="glyphicon glyphicon-plus"></span> Добавить</button>
+
+    <br><br>
+    {% if charges %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Заказ</th>
+                    <th>Сумма</th>
+                    <th>Доход</th>
+                    <th>Дата формирования</th>
+                    <th>Причина</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for charge in charges %}
+                <tr>
+                    <td>
+                        {{ charge.id }}
+                    </td>
+                    <td>
+                        {{ charge.order }}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_text_form.html' with action='hostels:manage_edit_charge' type='text' id=charge.id name='value' value=charge.value %}
+                    </td>
+                    <td>
+
+                        <form
+                            role="form"
+                            class="form-inline"
+                            id="id{{ charge.id }}_is_income_form"
+                            method="post"
+                            action="{% url 'hostels:manage_edit_charge' id=charge.id %}?back={{ request.get_full_path }}"
+                        >
+                            {% csrf_token %}
+                            <input type="hidden" name="back" value="{{ request.get_full_path }}">
+                            <input type="hidden" id="id{{ charge.id }}_is_income_hidden" name="is_income" value="">
+                            <div class="form-group">
+                                <input
+                                    type="checkbox"
+                                    id="id{{ charge.id }}_is_income_input"
+                                    name="is_income_chkbx"
+                                    {% if charge.is_income %}checked{% endif %}
+                                >
+                            </div>
+                        </form>
+                        <script type="text/javascript">
+                            $(document).ready(function() {
+                                $("#id{{ charge.id }}_is_income_input").change(function() {
+                                    if ($("#id{{ charge.id }}_is_income_input").prop("checked")) {
+                                        $("#id{{ charge.id }}_is_income_hidden").val("1");
+                                    } else {
+                                        $("#id{{ charge.id }}_is_income_hidden").val("0");
+                                    }
+                                    $("#id{{ charge.id }}_is_income_form").submit();
+                                });
+                            });
+                        </script>
+
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_date_form.html' with action='hostels:manage_edit_charge' type='text' id=charge.id name='date' value=charge.date date_format='Y-m-d H:i:s' %}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_select_form.html' with action='hostels:manage_edit_charge' id=charge.id name='status' value=charge.reason options=options.reasons selected=charge.reason %}
+                    </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-cog"></span>
+                            <span class="caret"></span></button>
+                            <ul class="dropdown-menu pull-right">
+                                <li><a href="#" onclick="console.log($('#createObject').find('[name=\'csrfmiddlewaretoken\']').val()); $.ajax({url: '{% url 'hostels:manage_edit_charge' id=charge.id %}', type: 'DELETE', csrfmiddlewaretoken: $('#createObject').find('[name=\'csrfmiddlewaretoken\']').val()}).done(function(){ location.reload(); });"><span class="glyphicon glyphicon-remove"></span> Удалить</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div id="createObject" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Новый платёж</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="order_id" value="{{ request.GET.order_id }}">
+                    <div class="form-group">
+                        <label for="id_bed">Заказ:</label>
+                        <select class="form-control" id="id_order" name="order">
+                            {% for option_val, option_text in options.orders %}
+                                <option value="{{ option_val.id }}" {% if option_val.id|add:'0' == request.GET.order_id|add:'0' %}selected{% endif %}>{{ option_text }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_value">Сумма:</label>
+                        <input type="text" class="form-control" id="id_value" name="value">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_is_income"><input type="checkbox" id="id_is_income" name="is_income" value="1"> Доход</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_date">Дата формирования:</label>
+                        <input type="text" class="form-control" id="id_date" name="date">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_reason">Причина:</label>
+                        <select class="form-control" id="id_reason" name="reason">
+                            {% for option_val, option_text in options.reasons %}
+                                <option value="{{ option_val.id }}">{{ option_text }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-default">
+                        <span class="glyphicon glyphicon-ok"></span>
+                        Создать
+                    </button>
+                </form>
+            </div>
+        </div>
+
+      </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends 'hostels/base.html' %}
+
+{% block title %}Операторы{% endblock %}
+
+{% block content %}
+
+    {% if error %}
+        {% include "hostels/alert_template.html" with type="danger" message=error %}
+    {% endif %}
+
+    {% if request.GET %}
+        <button type="button" class="btn btn-default" onclick="window.location = '{{ request.GET.back }}';"><span class="glyphicon glyphicon-arrow-left"></span> Назад</button>
+    {% endif %}
+
+    <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#createObject"><span class="glyphicon glyphicon-plus"></span> Добавить</button>
+
+    <br><br>
+    {% if operators %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Полное имя</th>
+                    <th>Паспортные данные</th>
+                    <th>Номер телефона</th>
+                    <th>Администратор</th>
+                    <th>Логин</th>
+                    <th>Пароль</th>
+                    <th>Хостелы</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for operator in operators %}
+                <tr>
+                    <td>
+                        {{ operator.id }}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_text_form.html' with action='hostels:manage_edit_operator' type='text' id=operator.id name='full_name' value=operator.full_name size='25' %}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_text_form.html' with action='hostels:manage_edit_operator' type='text' id=operator.id name='identification' value=operator.identification %}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_text_form.html' with action='hostels:manage_edit_operator' type='text' id=operator.id name='phone_number' value=operator.phone_number %}
+                    </td>
+                    <td>
+
+                        <form
+                            role="form"
+                            class="form-inline"
+                            id="id{{ operator.id }}_is_admin_form"
+                            method="post"
+                            action="{% url 'hostels:manage_edit_operator' id=operator.id %}?back={{ request.get_full_path }}"
+                        >
+                            {% csrf_token %}
+                            <input type="hidden" name="back" value="{{ request.get_full_path }}">
+                            <input type="hidden" id="id{{ operator.id }}_is_admin_hidden" name="is_admin" value="">
+                            <div class="form-group">
+                                <input
+                                    type="checkbox"
+                                    id="id{{ operator.id }}_is_admin_input"
+                                    name="is_admin_chkbx"
+                                    {% if operator.is_admin %}checked{% endif %}
+                                    {% if request.user == operator.user %}disabled{% endif %}
+                                >
+                            </div>
+                        </form>
+                        <script type="text/javascript">
+                            $(document).ready(function() {
+                                $("#id{{ operator.id }}_is_admin_input").change(function() {
+                                    if ($("#id{{ operator.id }}_is_admin_input").prop("checked")) {
+                                        $("#id{{ operator.id }}_is_admin_hidden").val("1");
+                                    } else {
+                                        $("#id{{ operator.id }}_is_admin_hidden").val("0");
+                                    }
+                                    $("#id{{ operator.id }}_is_admin_form").submit();
+                                });
+                            });
+                        </script>
+
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_text_form.html' with action='hostels:manage_edit_operator' type='text' id=operator.id name='username' value=operator.user.username %}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_text_form.html' with action='hostels:manage_edit_operator' type='password' id=operator.id name='password' value='*******' %}
+                        <script type="text/javascript">
+                            $("#id{{ operator.id }}_password_input").focus(function() {
+                                $("#id{{ operator.id }}_password_input").val("");
+                            });
+                        </script>
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_list_form.html' with action='hostels:manage_edit_operator' id=operator.id name='hostels' value=operator.hostels.all options=options.hostels %}
+                    </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-cog"></span>
+                            <span class="caret"></span></button>
+                            <ul class="dropdown-menu pull-right">
+                                <li><a href="#" onclick="console.log($('#createObject').find('[name=\'csrfmiddlewaretoken\']').val()); $.ajax({url: '{% url 'hostels:manage_edit_operator' id=operator.id %}', type: 'DELETE', csrfmiddlewaretoken: $('#createObject').find('[name=\'csrfmiddlewaretoken\']').val()}).done(function(){ location.reload(); });"><span class="glyphicon glyphicon-remove"></span> Удалить</a></li>
+                                <li class="dropdown-header">Связанные объекты</li>
+                                <li><a href="{% url 'hostels:manage_hostels' %}?operator_id={{ operator.id }}&back={{ request.get_full_path }}"><span class="glyphicon glyphicon-inbox"></span> Хостелы</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div id="createObject" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Новый оператор</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="hostel_id" value="{{ request.GET.hostel_id }}">
+                    <div class="form-group">
+                        <label for="id_username">Логин:</label>
+                        <input type="text" class="form-control" id="id_username" name="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_password">Пароль:</label>
+                        <input type="password" class="form-control" id="id_password" name="password">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_full_name">Полное имя:</label>
+                        <input type="text" class="form-control" id="id_full_name" name="full_name">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_identification">Паспортные данные:</label>
+                        <input type="text" class="form-control" id="id_identification" name="identification">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_phone_number">Номер телефона:</label>
+                        <input type="text" class="form-control" id="id_phone_number" name="phone_number">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_is_admin"><input type="checkbox" id="id_is_admin" name="is_admin" value="1"> Администратор</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_hostels">Хостелы:</label>
+                        <select class="form-control" id="id_hostels" name="hostels" multiple>
+                            {% for option_val, option_text in options.hostels %}
+                                <option value="{{ option_val.id }}" {% if option_val.id|add:'0' == request.GET.hostel_id|add:'0' %}selected{% endif %}>{{ option_text }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-default">
+                        <span class="glyphicon glyphicon-ok"></span>
+                        Создать
+                    </button>
+                </form>
+            </div>
+        </div>
+
+      </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends 'hostels/base.html' %}
+
+{% block title %}Ошибка{% endblock %}
+
+{% block content %}
+{% include "hostels/alert_template.html" with type="danger" message="Произошла внутренняя ошибка сервера. Обратитесь к администратору сети." %}
+{% endblock %}

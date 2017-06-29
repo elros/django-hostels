@@ -1,0 +1,54 @@
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{% url 'hostels:index' %}">Хостелы</a>
+        </div>
+        <ul class="nav navbar-nav">
+            {% if request.user.is_authenticated %}
+                {% if request.user.operator.is_admin %}
+
+                    <!-- <li><a href="{% url 'admin:index' %}" data-toggle="tooltip" data-placement="bottom" title="Управление"><span class="glyphicon glyphicon-lock"></span></a></li> -->
+                    <li><a href="{% url 'hostels:manage_hostels' %}" data-toggle="tooltip" data-placement="bottom" title="Хостелы"><span class="glyphicon glyphicon-home"></span></a></li>
+                    <li><a href="{% url 'hostels:manage_beds' %}" data-toggle="tooltip" data-placement="bottom" title="Кровати"><span class="glyphicon glyphicon-inbox"></span></a></li>
+                    <li><a href="{% url 'hostels:manage_operators' %}" data-toggle="tooltip" data-placement="bottom" title="Операторы"><span class="glyphicon glyphicon-user"></span></a></li>
+                    <li><a href="{% url 'hostels:manage_orders' %}" data-toggle="tooltip" data-placement="bottom" title="Заказы"><span class="glyphicon glyphicon-list-alt"></span></a></li>
+                    <li><a href="{% url 'hostels:manage_charges' %}" data-toggle="tooltip" data-placement="bottom" title="Платежи"><span class="glyphicon glyphicon-rub"></span></a></li>
+                    <li><a href="{% url 'hostels:manage_taxes' %}" data-toggle="tooltip" data-placement="bottom" title="Тарифы"><span class="glyphicon glyphicon-equalizer"></span></a></li>
+                    <li><a href="{% url 'hostels:manage_hostels_report' %}" data-toggle="tooltip" data-placement="bottom" title="Отчёт"><span class="glyphicon glyphicon-search"></span></a></li>
+                    <!-- <li><a href="{% url 'hostels:manage_charges_history' %}" data-toggle="tooltip" data-placement="bottom" title="История"><span class="glyphicon glyphicon-time"></span></a></li> -->
+
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <span class="glyphicon glyphicon-time"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'hostels:manage_orders_history' %}">История заказов</a></li>
+                            <li><a href="{% url 'hostels:manage_charges_history' %}">История платежей</a></li>
+                            <li><a href="{% url 'hostels:manage_taxes_history' %}">История тарифов</a></li> 
+                        </ul>
+                    </li>
+
+                {% else %}
+
+                    <li><a href="{% url 'hostels:bed_list' %}" data-toggle="tooltip" data-placement="bottom" title="Список кроватей"><span class="glyphicon glyphicon-inbox"></span></a></li>
+                    <!-- <li><a href="{% url 'hostels:order_list' %}"  data-toggle="tooltip" data-placement="bottom" title="Список заказов"><span class="glyphicon glyphicon-list-alt"></span></a></li> -->
+                    <li><a href="{% url 'hostels:reservation_calendar' %}"  data-toggle="tooltip" data-placement="bottom" title="Календарь бронирования"><span class="glyphicon glyphicon-calendar"></span></a></li>
+                    <li><a href="{% url 'hostels:tax_list' %}"  data-toggle="tooltip" data-placement="bottom" title="Справочник тарифов"><span class="glyphicon glyphicon-equalizer"></span></a></li>
+                    <li><a href="{% url 'hostels:hostel_list' %}"  data-toggle="tooltip" data-placement="bottom" title="Справочник хостелов"><span class="glyphicon glyphicon-phone-alt"></span></a></li>
+
+                {% endif %}
+
+                    <script type="text/javascript">
+                        $("ul.nav li:has(a[href='{{ request.path }}'])").addClass('active');
+                    </script>
+
+            {% endif %}
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+        {% if request.user.is_authenticated %}
+            <li><a><span class="glyphicon glyphicon-user"></span> Вы вошли как {{ user }}</a></li>
+            <li><a href="{% url 'hostels:logout' %}"><span class="glyphicon glyphicon-log-in"></span> Выход</a></li>
+        {% endif %}
+        </ul>
+    </div>
+</nav>

@@ -1,0 +1,7 @@
+{% extends 'hostels/base.html' %}
+
+{% block title %}Ошибка{% endblock %}
+
+{% block content %}
+{% include "hostels/alert_template.html" with type="danger" message="Указанная страница отсутствует на сервере. Обратитесь к администратору сети." %}
+{% endblock %}

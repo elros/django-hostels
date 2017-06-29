@@ -1,0 +1,81 @@
+{% extends 'hostels/base.html' %}
+
+{% block title %}Отчёт{% endblock %}
+
+{% block content %}
+
+    {% if error %}
+        {% include "hostels/alert_template.html" with type="danger" message=error %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <form role="form" class="form-inline" method="get">
+                <div class="form-group">
+                    <!-- <label for="id_start_date">Начало периода:</label> -->
+                    <input type="text" id="id_start_date" class="form-control" name="start_date" value="{{ start_date|date:'Y-m-d' }}" placeholder="Начало периода">
+                </div>
+                <span class="glyphicon glyphicon-chevron-right"></span>
+                <div class="form-group">
+                    <!-- <label for="id_end_date">Конец периода:</label> -->
+                    <input type="text" id="id_end_date" class="form-control" name="end_date" value="{{ end_date|date:'Y-m-d' }}" placeholder="Конец периода">
+                </div>
+                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-ok"></span></button>
+            </form>
+            <script type="text/javascript">
+                $('#id_start_date').datepicker({
+                    format: "yyyy-mm-dd",
+                    language: 'ru',
+                });
+                $('#id_end_date').datepicker({
+                    format: "yyyy-mm-dd",
+                    language: 'ru',
+                });
+            </script>
+        </div>
+
+    <br><br><br>
+    {% if hostels %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Город</th>
+                    <th>Адрес</th>
+                    <th>Тариф</th>
+                    <th>Номер телефона</th>
+                    <th>Доход/расход</th>
+                    <th>Въездов/отъездов</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for hostel in hostels %}
+                <tr>
+                    <td>
+                        {{ hostel.id }}
+                    </td>
+                    <td>
+                        {{ hostel.city }}
+                    </td>
+                    <td>
+                        {{ hostel.address }}
+                    </td>
+                    <td>
+                        {{ hostel.tax.name }}
+                    </td>
+                    <td>
+                        {{ hostel.phone_number }}
+                    </td>
+                    <td>
+                        {{ hostel.report_value_income }} / {{ hostel.report_value_outgo }}
+                    </td>
+                    <td>
+                        {{ hostel.report_settlements }} / {{ hostel.report_departures }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,20 @@
+.asteriskField {
+  display: none;
+}
+
+
+/*table.table tbody tr td button {
+    display: none;
+}*/
+/*table tbody tr:hover td button {
+    display: inline-block;
+}*/
+
+
+/*table.table tbody tr td div.dropdown { position: relative; left:9999; }
+table.table tbody tr:hover td div.dropdown { display:inline-block;}*/
+
+
+table.table tbody td {
+    vertical-align: middle;
+}

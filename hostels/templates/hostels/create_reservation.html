@@ -1,0 +1,33 @@
+{% extends "hostels/base.html" %}
+
+{% block title %}Бронирование{% endblock %}
+
+{% block content %}
+{% include "hostels/base_form.html" with submit_text="Готово" cancel_button="Отмена" glyphs=True form_class="update-tax-value" %}
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        $('#id_start_date').datepicker({
+            format: "yyyy-mm-dd",
+            language: 'ru',
+            startDate: new Date(),
+        });
+
+        $('#id_end_date').datepicker({
+            format: "yyyy-mm-dd",
+            language: 'ru',
+            startDate: new Date(),
+        });
+
+        $(".update-tax-value").change(function() {
+            var start_date = $("#id_start_date").val();
+            var end_date = $("#id_end_date").val();
+            days = dayDiff(start_date, end_date);
+            $.get("{% url 'hostels:bed_tax_value' bed_id=bed.id %}", {days: days})
+                .done(function(data) {
+                    $("#id_value").val(data);
+                });
+        });
+    });
+</script>
+{% endblock %}

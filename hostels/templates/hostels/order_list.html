@@ -1,0 +1,55 @@
+{% extends "hostels/base.html" %}
+
+{% block title %}Список заказов{% endblock %}
+
+{% block content %}
+    {% if order_list %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Номер заказа</th>
+                    <th>Статус</th>
+                    <th>Хостел</th>
+                    <th>Кровать</th>
+                    <th>Дата въезда</th>
+                    <th>Дата выезда</th>
+                    <th>Сумма</th>
+                    <th>ФИО гостя</th>
+                    <th>Паспортные данные</th>
+                    <th>Номер телефона</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in order_list %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.status_text }}</td>
+                    <td>{{ order.bed.hostel }}</td>
+                    <td>{{ order.bed.id }}</td>
+                    <td>{{ order.start_date | date:'Y.m.d' }}</td>
+                    <td>{{ order.end_date | date:'Y.m.d' }}</td>
+                    <td>{{ order.value }}</td>
+                    <td>{{ order.guest_full_name }}</td>
+                    <td>{{ order.guest_identification }}</td>
+                    <td>{{ order.guest_phone_number }}</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-cog"></span>
+                            <span class="caret"></span></button>
+                            <ul class="dropdown-menu pull-right">
+                                {% }
+                                <li><a href="#"><span class="glyphicon glyphicon-remove"></span> Удалить</a></li>
+                                <li><a href="#"><span class="glyphicon glyphicon-pencil"></span> Изменить сроки</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        {% include "hostels/alert_template.html" with type="info" message="У вас нет доступных заказов. Обратитесь к администратору сети." %}
+    {% endif %}
+{% endblock %}

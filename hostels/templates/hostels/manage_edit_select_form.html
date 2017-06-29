@@ -1,0 +1,33 @@
+<form
+    role="form"
+    class="form-inline"
+    id="id{{ id }}_{{ name }}_form"
+    method="post"
+    action="{% url action id=id %}"
+>
+    {% csrf_token %}
+    <input type="hidden" name="back" value="{{ request.get_full_path }}">
+    <div class="form-group">
+        <select
+            class="form-control"
+            id="id{{ id }}_{{ name }}_input"
+            name="{{ name }}"
+            style="border: none; box-shadow: none; width: 160px;"
+        >
+            {% for option_value, option_text in options %}
+                <option
+                    value="{{ option_value }}"
+                    {% if option_value == selected %}selected{% endif %}
+                >{{ option_text }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</form>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#id{{ id }}_{{ name }}_input").change(function() {
+            $("#id{{ id }}_{{ name }}_form").submit();
+        });
+    });
+</script>

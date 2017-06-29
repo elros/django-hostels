@@ -1,0 +1,34 @@
+{% extends "hostels/base.html" %}
+
+{% block title %}Справочник тарифов{% endblock %}
+
+{% block content %}
+    {% if taxes %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Тариф</th>
+                    <th>Порог (дней)</th>
+                    <th>Цена за день</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for tax in taxes %}
+                {% for grade in tax.sorted_grades %}
+                    <tr>
+                        <td>
+                            {% if forloop.counter == 1 %}
+                                {{ tax.name }}
+                            {% endif %}
+                        </td>
+                        <td>{{ grade.threshold_days }}</td>
+                        <td>{{ grade.day_price }}</td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        {% include "hostels/alert_template.html" with type="info" message="У вас нет доступных тарифов. Обратитесь к    администратору сети." %}
+    {% endif %}
+{% endblock %}

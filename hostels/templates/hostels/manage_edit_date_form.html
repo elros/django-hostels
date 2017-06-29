@@ -1,0 +1,45 @@
+<form
+    role="form"
+    class="form-inline"
+    id="id{{ id }}_{{ name }}_form"
+    method="post"
+    action="{% url action id=id %}?back={{ request.get_full_path }}"
+>
+    {% csrf_token %}
+    <input type="hidden" name="back" value="{{ request.get_full_path }}">
+    <div class="row">
+        <div class="form-group col-md-1">
+            <input
+                type="{{ type }}"
+                class="form-control"
+                id="id{{ id }}_{{ name }}_input"
+                name="{{ name }}"
+                {% if date_format %}
+                    value="{{ value|date:date_format }}"
+                {% else %}
+                    value="{{ value|date:'Y-m-d' }}"
+                {% endif %}
+                size="{{ size | default:15 }}"
+            >
+        </div>
+    </div>
+</form>
+
+<style type="text/css">
+    #id{{ id }}_{{ name }}_input:not(:focus) {
+        border: none;
+        box-shadow: none;
+    }
+</style>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#id{{ id }}_{{ name }}_input').datepicker({
+            format: "yyyy-mm-dd",
+            language: 'ru',
+        });
+        $('#id{{ id }}_{{ name }}_input').change(function() {
+            $("#id{{ id }}_{{ name }}_form").submit();
+        });
+    });
+</script>

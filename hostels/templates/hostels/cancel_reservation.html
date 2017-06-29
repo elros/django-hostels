@@ -1,0 +1,7 @@
+{% extends "hostels/base.html" %}
+
+{% block title %}Отмена бронирования{% endblock %}
+
+{% block content %}
+{% include "hostels/base_form.html" with submit_text="Готово" cancel_button="Отмена" glyphs=True %}
+{% endblock %}

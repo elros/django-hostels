@@ -1,0 +1,95 @@
+{% extends "hostels/base.html" %}
+
+{% block title %}Календарь бронирования{% endblock %}
+
+{% block content %}
+
+{% if beds %}
+    <form class="form-inline" role="form" method="get">
+        <div class="form-group">
+            <!-- <label for="search">Поиск:</label> -->
+            <input type="text" class="form-control input-sm" id="search" name="search" value="{{ request.GET.search }}">
+        </div>
+        <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+    </form>
+    <br>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+            <th></th>
+            {% for bed in beds %}
+                <th class="text-center">{{ bed.id }}</th>
+            {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for day, reservations in calendar %}
+            <tr>
+                <td class="day">{{ day | date:'Y.m.d' }}</td>
+                {% for bed, order, search_result in reservations %}
+                    {% if order %}
+
+                        {% if order.status == order.ACTIVE %}
+
+                            <td class="text-center {% if search_result %}info search-result{% else %}danger{% endif %}">
+                                <div class="dropdown">
+                                    <a style="color:black;" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-remove"></span></a>
+                                    <ul class="dropdown-menu pull-right">
+                                        <li class="dropdown-header">
+                                            <strong>Заказ №{{ order.id }} (статус: {{ order.status_text }})</strong><br>
+                                            Кровать №{{ bed.id }}<br>
+                                            Пол/тариф: {{ bed.gender_text }}/{{ bed.tax.name }}
+                                        </li>
+                                    </ul>
+                                </div>    
+                            </td>
+
+                        {% elif order.status == order.RESERVED or order.status == order.AWAITING_ACTIVATION %}
+
+                            <td class="text-center {% if search_result %}info search-result{% else %}warning{% endif %}">
+                                <div class="dropdown">
+                                    <a style="color:black;" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-time"></span></a>
+                                    <ul class="dropdown-menu pull-right">
+                                        <li class="dropdown-header">
+                                            <strong>Заказ №{{ order.id }} (статус: {{ order.status_text }})</strong><br>
+                                            Кровать №{{ bed.id }}<br>
+                                            Пол/тариф: {{ bed.gender_text }}/{{ bed.tax.name }}
+                                        </li>
+                                        <li><a href="{% url 'hostels:remove_reservation' order_id=order.id %}"><span class="glyphicon glyphicon-remove"></span> Удалить</a></li>
+                                        <li><a href="{% url 'hostels:change_reservation_dates' order_id=order.id %}"><span class="glyphicon glyphicon-pencil"></span> Изменить сроки</a></li>
+                                    </ul>
+                                </div>    
+                            </td>
+
+                        {% endif %}
+                    {% else %}
+
+                        <td class="text-center success">
+                            <div class="dropdown">
+                                <a style="color:black;" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-ok"></span></a>
+                                <ul class="dropdown-menu pull-right">
+                                    <li class="dropdown-header">
+                                        <strong>Свободный день</strong><br>
+                                        Кровать №{{ bed.id }}<br>
+                                        Пол/тариф: {{ bed.gender_text }}/{{ bed.tax.name }}
+                                    </li>
+                                    <li><a href="{% url 'hostels:create_reservation' bed_id=bed.id %}?start_date={{ day | date:'Y-m-d'}}"><span class="glyphicon glyphicon-bookmark"></span> Забронировать</a></li>
+                                </ul>
+                            </div>    
+                        </td>
+
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $("tr:has(td.search-result) td[class=day]").addClass("info");
+    });
+    </script>
+{% endif %}
+
+{% endblock %}

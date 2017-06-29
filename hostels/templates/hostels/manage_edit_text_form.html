@@ -1,0 +1,29 @@
+<form
+    role="form"
+    class="form-inline"
+    id="id{{ id }}_{{ name }}_form"
+    method="post"
+    action="{% url action id=id %}?back={{ request.get_full_path }}"
+>
+    {% csrf_token %}
+    <input type="hidden" name="back" value="{{ request.get_full_path }}">
+    <div class="row">
+        <div class="form-group col-md-1">
+            <input
+                type="{{ type }}"
+                class="form-control"
+                id="id{{ id }}_{{ name }}_input"
+                name="{{ name }}"
+                value="{{ value }}"
+                size="{{ size | default:10 }}"
+            >
+        </div>
+    </div>
+</form>
+
+<style type="text/css">
+    #id{{ id }}_{{ name }}_input:not(:focus) {
+        border: none;
+        box-shadow: none;
+    }
+</style>

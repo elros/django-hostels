@@ -1,0 +1,105 @@
+{% extends 'hostels/base.html' %}
+
+{% block title %}Кровати{% endblock %}
+
+{% block content %}
+
+    {% if error %}
+        {% include "hostels/alert_template.html" with type="danger" message=error %}
+    {% endif %}
+
+    {% if request.GET %}
+        <button type="button" class="btn btn-default" onclick="window.location = '{{ request.GET.back }}';"><span class="glyphicon glyphicon-arrow-left"></span> Назад</button>
+        <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#createObject"><span class="glyphicon glyphicon-plus"></span> Добавить</button>
+    {% endif %}
+
+    <br><br>
+    {% if beds %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Город</th>
+                    <th>Адрес</th>
+                    <th>Тариф</th>
+                    <th>Пол</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for bed in beds %}
+                <tr>
+                    <td>
+                        {{ bed.id }}
+                    </td>
+                    <td>
+                        {{ bed.hostel.city }}
+                    </td>
+                    <td>
+                        {{ bed.hostel.address }}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_select_form.html' with action='hostels:manage_edit_bed' id=bed.id name='tax_id' value=bed.tax.id options=options.tax selected=bed.tax.id %}
+                    </td>
+                    <td>
+                        {% include 'hostels/manage_edit_select_form.html' with action='hostels:manage_edit_bed' id=bed.id name='gender' value=bed.gender options=options.gender selected=bed.gender %}
+                    </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-cog"></span>
+                            <span class="caret"></span></button>
+                            <ul class="dropdown-menu pull-right">
+                                <li><a href="#" onclick="console.log($('#createObject').find('[name=\'csrfmiddlewaretoken\']').val()); $.ajax({url: '{% url 'hostels:manage_edit_bed' id=bed.id %}', type: 'DELETE', csrfmiddlewaretoken: $('#createObject').find('[name=\'csrfmiddlewaretoken\']').val()}).done(function(){ location.reload(); });"><span class="glyphicon glyphicon-remove"></span> Удалить</a></li>
+                                <li class="dropdown-header">Связанные объекты</li>
+                                <li><a href="{% url 'hostels:manage_orders' %}?bed_id={{ bed.id }}&back={{ request.get_full_path }}"><span class="glyphicon glyphicon-list-alt"></span> Заказы</a></li>
+                                <li><a href="{% url 'hostels:manage_charges' %}?bed_id={{ bed.id }}&back={{ request.get_full_path }}"><span class="glyphicon glyphicon-rub"></span> Платежи</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div id="createObject" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Новая кровать</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="hostel_id" value="{{ request.GET.hostel_id }}">
+                    <div class="form-group">
+                        <label for="id_tax">Тариф:</label>
+                        <select class="form-control" id="id_tax" name="tax_id">
+                            {% for option_val, option_text in options.tax %}
+                                <option value="{{ option_val }}">{{ option_text }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_gender">Пол:</label>
+                        <select class="form-control" id="id_tax" name="gender">
+                            {% for option_val, option_text in options.gender %}
+                                <option value="{{ option_val }}">{{ option_text }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-default">
+                        <span class="glyphicon glyphicon-ok"></span>
+                        Создать
+                    </button>
+                </form>
+            </div>
+        </div>
+
+      </div>
+    </div>
+
+{% endblock %}

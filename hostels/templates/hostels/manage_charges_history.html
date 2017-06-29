@@ -1,0 +1,79 @@
+{% extends 'hostels/base.html' %}
+
+{% block title %}История платежей{% endblock %}
+
+{% block content %}
+
+    {% if error %}
+        {% include "hostels/alert_template.html" with type="danger" message=error %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <form role="form" class="form-inline" method="get">
+                <div class="form-group">
+                    <!-- <label for="id_start_date">Начало периода:</label> -->
+                    <input type="text" id="id_start_date" class="form-control" name="start_date" value="{{ start_date|date:'Y-m-d' }}" placeholder="Начало периода">
+                </div>
+                <span class="glyphicon glyphicon-chevron-right"></span>
+                <div class="form-group">
+                    <!-- <label for="id_end_date">Конец периода:</label> -->
+                    <input type="text" id="id_end_date" class="form-control" name="end_date" value="{{ end_date|date:'Y-m-d' }}" placeholder="Конец периода">
+                </div>
+                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-ok"></span></button>
+            </form>
+            <script type="text/javascript">
+                $('#id_start_date').datepicker({
+                    format: "yyyy-mm-dd",
+                    language: 'ru',
+                });
+                $('#id_end_date').datepicker({
+                    format: "yyyy-mm-dd",
+                    language: 'ru',
+                });
+            </script>
+        </div>
+
+    <br><br><br>
+    {% if charges %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Дата платежа</th>
+                    <th>Сумма платежа</th>
+                    <th>Номер телефона хостела</th>
+                    <th>Кровать</th>
+                    <th>Данные о заказе</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for charge in charges %}
+                <tr>
+                    <td>
+                        {{ charge.date|date:'Y.m.d H:i:s' }}
+                    </td>
+                    <td>
+                        {% if charge.is_income %}
+                            +{{ charge.value }}
+                        {% else %}
+                            -{{ charge.value }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ charge.order.hostel.phone_number }}
+                    </td>
+                    <td>
+                        {{ charge.order.bed }}
+                    </td>
+                    <td>
+                        {{ charge.order.guest_full_name }} ({{ charge.order.guest_phone_number }})
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        {% include "hostels/alert_template.html" with type="info" message="Не найдено платежей за указанный период." %}
+    {% endif %}
+
+{% endblock %}
